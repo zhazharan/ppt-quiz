@@ -19,10 +19,10 @@ async function upload(file) {
   $("#upload-status").textContent = `正在解析 ${file.name} ...`;
   try {
     const raw = await extractSlides(file);
-    const r = await fetch("/api/analyze", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({slides: raw})});
-    const d = await r.json();
-    if (!r.ok) throw new Error(d.error);
-    d.name = file.name;
+    const slides = raw.map(finishSlide);
+    const points = extractKnowledge(slides);
+    if (!points.length) throw new Error("未能从文件中识别到文字内容（图片型课件暂不支持）");
+    const d = {name: file.name, slides, points};
     doc = d;
     const defs = d.points.filter(p => p.term).length;
     $("#upload-status").textContent = `✅ 解析完成：${d.slides.length} 页，${d.points.length} 条知识点（其中 ${defs} 个概念定义）`;
@@ -60,10 +60,15 @@ async function generate() {
   $("#gen").disabled = $("#again").disabled = true;
   $("#gen-status").textContent = llm.api_key ? "AI 正在阅读课件并出题，约需 20-60 秒..." : "正在出题...";
   try {
-    const r = await fetch("/api/quiz", {method: "POST", headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({slides: doc.slides, points: doc.points, types, count: +$("#count").value || 10, llm})});
-    const d = await r.json();
-    if (!r.ok) throw new Error(d.error);
+    let qs = null, warning = null;
+    if (llm.api_key) {
+      try { qs = await llmBased(doc.slides, types, +$("#count").value || 10, llm); if (!qs.length) { qs = null; warning = "AI 未返回有效题目，已改用本地规则出题"; } }
+      catch (e) { warning = `AI 出题失败（${e.message}），已改用本地规则出题`; }
+    }
+    const mode = qs ? "ai" : "local";
+    if (!qs) qs = ruleBased(doc.points, types, +$("#count").value || 10);
+    if (!qs.length) throw new Error("课件内容太少，无法生成题目");
+    const d = {questions: qs, mode, warning};
     $("#gen-status").textContent = d.warning ? "⚠️ " + d.warning : (d.mode === "ai" ? "✅ AI 出题完成" : `✅ 已生成 ${d.questions.length} 题`);
     startQuiz(d.questions);
   } catch (e) { $("#gen-status").textContent = "❌ " + e.message; }

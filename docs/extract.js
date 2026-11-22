@@ -53,7 +53,7 @@ async function parsePptx(file) {
 }
 
 async function parsePdf(file) {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = "/static/vendor/pdf.worker.min.js";
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "vendor/pdf.worker.min.js";
   const pdf = await pdfjsLib.getDocument({data: await file.arrayBuffer()}).promise;
   const slides = [];
   for (let n = 1; n <= pdf.numPages; n++) {
