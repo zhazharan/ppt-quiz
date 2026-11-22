@@ -54,7 +54,7 @@ async function parsePptx(file) {
 
 async function parsePdf(file) {
   pdfjsLib.GlobalWorkerOptions.workerSrc = "vendor/pdf.worker.min.js";
-  const pdf = await pdfjsLib.getDocument({data: await file.arrayBuffer()}).promise;
+  const pdf = await pdfjsLib.getDocument({data: await file.arrayBuffer(), cMapUrl: new URL("vendor/cmaps/", location.href).href, cMapPacked: true, standardFontDataUrl: new URL("vendor/standard_fonts/", location.href).href}).promise;
   const slides = [];
   for (let n = 1; n <= pdf.numPages; n++) {
     const content = await (await pdf.getPage(n)).getTextContent();
