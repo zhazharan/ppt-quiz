@@ -56,19 +56,47 @@ async function parsePdf(file) {
   pdfjsLib.GlobalWorkerOptions.workerSrc = "vendor/pdf.worker.min.js";
   const pdf = await pdfjsLib.getDocument({data: await file.arrayBuffer(), cMapUrl: new URL("vendor/cmaps/", location.href).href, cMapPacked: true, standardFontDataUrl: new URL("vendor/standard_fonts/", location.href).href}).promise;
   const slides = [];
+  let section = "";
   for (let n = 1; n <= pdf.numPages; n++) {
     const content = await (await pdf.getPage(n)).getTextContent();
-    const rows = [];
-    for (const it of content.items) {
-      if (!it.str) continue;
-      const y = Math.round(it.transform[5]);
-      const row = rows.find(r => Math.abs(r.y - y) < 3);
-      if (row) row.t += it.str; else rows.push({y, t: it.str});
-    }
-    const lines = rows.sort((a, b) => b.y - a.y).map(r => r.t.trim()).filter(Boolean);
-    slides.push({index: n, title: lines.shift() || "", lines, notes: ""});
+    const good = pdfLines(content.items).filter(l => isMeaningful(l.t));
+    const head = good.map(l => l.t.match(HEADING_RE)).find(Boolean);
+    if (head) section = head[0].replace(/\s+/g, "").replace(/[（(]$/, "");
+    slides.push({index: n, title: section, lines: good.map(l => l.t).filter(t => { const m = t.match(HEADING_RE); return !m || m[0].length < t.length * 0.7; }), notes: ""});
   }
   return slides;
+}
+
+const HEADING_RE = /第[一二三四五六七八九十百\d]+[章节][^\d,，。；;]{0,20}|[一二三四五六七八九十]{1,3}\s*[、．]\s*[^\d\s,，。；;:：•]{2,20}/;
+
+function pdfLines(items) {
+  const parts = items.filter(it => it.str && it.str.trim()).map(it => {
+    const t = it.transform;
+    return {x: t[4], y: t[5], w: it.width, h: it.height || Math.hypot(t[2], t[3]) || 10, s: it.str};
+  }).sort((a, b) => b.h - a.h);
+  const rows = [];
+  for (const p of parts) {
+    const row = rows.find(r => Math.abs(r.y - p.y) < 0.6 * r.h && p.x < r.x2 + r.h && p.x + p.w > r.x1 - r.h);
+    if (row) { row.items.push(p); row.x1 = Math.min(row.x1, p.x); row.x2 = Math.max(row.x2, p.x + p.w); }
+    else rows.push({y: p.y, h: p.h, x1: p.x, x2: p.x + p.w, items: [p]});
+  }
+  return rows.sort((a, b) => b.y - a.y || a.x1 - b.x1).map(r => {
+    let t = "", end = null;
+    for (const p of r.items.sort((a, b) => a.x - b.x)) {
+      if (end !== null && p.x - end > 0.3 * r.h && /[\w)]$/.test(t) && /^[\w(]/.test(p.s)) t += " ";
+      t += p.s; end = p.x + p.w;
+    }
+    return {t: t.replace(/\s+/g, " ").trim(), h: r.h};
+  }).filter(l => l.t);
+}
+
+function isMeaningful(t) {
+  const compact = t.replace(/\s/g, "");
+  const cjk = (compact.match(/[\u4e00-\u9fff]/g) || []).length;
+  const words = (t.match(/[A-Za-z]{2,}/g) || []).length;
+  const letters = (compact.match(/[A-Za-z]/g) || []).length;
+  if (cjk < 2 && words < 3) return false;
+  return (cjk + letters) / compact.length >= 0.4;
 }
 
 async function extractSlides(file) {

@@ -76,7 +76,10 @@ function choice(question, correct, distractors, kp, explanation) {
     explanation: explanation || `原文：${kp.text}`, slide: kp.slide, topic: kp.topic};
 }
 
-function ruleBased(points, types, count) {
+const solid = p => p.term || (p.text.length >= 8 && /[\u4e00-\u9fff]{4}|([A-Za-z]{2,}\W+){4}/.test(p.text));
+
+function ruleBased(allPoints, types, count) {
+  const points = allPoints.filter(solid).length >= 5 ? allPoints.filter(solid) : allPoints;
   const defs = points.filter(p => p.term), gens = [];
   for (const kp of points) {
     const others = points.filter(p => p.topic !== kp.topic);
