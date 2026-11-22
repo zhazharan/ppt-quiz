@@ -1,3 +1,13 @@
+---
+title: 课件刷题
+emoji: 📚
+colorFrom: indigo
+colorTo: purple
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # 课件刷题 · PPT 知识点测验
 
 上传课堂 PPT（.pptx / .pdf），自动识别内容、提取知识点，生成选择题 / 判断题 / 填空题在线答题，并给出解析与错题回顾。
