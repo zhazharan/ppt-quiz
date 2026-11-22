@@ -122,3 +122,58 @@ footer{text-align:center;color:var(--sub);font-size:13px;padding:10px 16px 36px}
   .result{flex-direction:column;text-align:center}
   .doc-name{max-width:100%}.card h2{flex-wrap:wrap}
 }
+
+/* tabs */
+.tabs{display:flex;gap:4px;width:max-content;margin:0 auto 18px;padding:5px;background:rgba(255,255,255,.95);border-radius:99px;box-shadow:var(--shadow)}
+.tab{margin:0;border:0;border-radius:99px;padding:9px 22px;font-size:15px;background:transparent;color:var(--sub);box-shadow:none}
+.tab:hover{transform:none;color:var(--pri)}
+.tab.active{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;box-shadow:0 4px 12px rgba(91,91,240,.35)}
+button.sm{padding:7px 14px;font-size:13px;border-radius:10px;margin:0}
+button.ghost{border-color:transparent;color:var(--sub);background:transparent}
+button.ghost:hover{color:var(--no);border-color:#f3c8ca;background:var(--no-soft)}
+
+/* library */
+.library h3{display:flex;align-items:center;gap:8px;margin:24px 0 10px}
+.lib-list{display:grid;gap:10px}
+.lib-item{display:flex;align-items:center;gap:14px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;transition:.2s;background:#fff}
+.lib-item:hover{border-color:#c9cdf6;box-shadow:0 6px 18px rgba(30,34,64,.06)}
+.lib-icon{flex:none;width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff;background:linear-gradient(135deg,#f97316,#ef4444)}
+.lib-info{flex:1;min-width:0}
+.lib-name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lib-info .muted{font-size:13px}
+.lib-item .primary.sm{margin-left:auto}
+
+/* stats */
+.stats-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.stats-head h2{margin-bottom:14px}
+select{font:inherit;font-size:14px;padding:8px 12px;border:1.5px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);max-width:260px;outline:none}
+select:focus{border-color:var(--pri)}
+.tiles{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.tile{padding:16px 12px;border-radius:14px;text-align:center;background:linear-gradient(180deg,#f7f7ff,#fff);border:1px solid var(--line)}
+.tile-v{font-size:28px;font-weight:800;color:var(--pri);line-height:1.2}.tile-v small{font-size:13px;color:var(--sub);margin-left:2px;font-weight:600}
+.tile .muted{font-size:13px}
+.chart{width:100%;height:auto;display:block}
+.grid-l{stroke:#eceefa;stroke-width:1}
+.axis{font-size:11px;fill:#9aa0bf}
+.line{fill:none;stroke:var(--pri);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
+.dot{fill:#fff;stroke:var(--pri);stroke-width:3}
+.dot-l{font-size:11px;font-weight:700;fill:var(--pri)}
+.weak-row{display:grid;grid-template-columns:minmax(0,1.3fr) 1fr 84px;align-items:center;gap:14px;padding:10px 0;border-bottom:1px dashed var(--line)}
+.weak-row:last-child{border:0}
+.weak-name{min-width:0}.weak-name b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.weak-name .muted{display:block;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.weak-bar{height:10px;background:#f0f1f8;border-radius:99px;overflow:hidden}
+.weak-bar div{height:100%;border-radius:99px}
+.bad{background:linear-gradient(90deg,#f87171,#e5484d)}.mid{background:linear-gradient(90deg,#fbbf24,#f59e0b)}.good{background:linear-gradient(90deg,#4ade80,#16a34a)}
+.weak-p{font-weight:700;text-align:right}.weak-p .muted{font-size:12px}
+.hist-row{display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px dashed var(--line)}
+.hist-row:last-child{border:0}
+.hist-score{flex:none;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:800}
+.hist-info{min-width:0;flex:1}.hist-info .muted{font-size:13px}
+.empty{text-align:center;padding:30px 10px}.empty-icon{font-size:46px}.empty p{color:var(--sub)}
+
+@media(max-width:600px){
+  .tiles{grid-template-columns:repeat(2,1fr)}.tile:last-child{grid-column:1/3}
+  .weak-row{grid-template-columns:1fr 70px}.weak-bar{grid-column:1/3;grid-row:2}
+  .lib-item{flex-wrap:wrap}.lib-info{flex-basis:calc(100% - 60px)}.lib-item .primary.sm{margin-left:56px}
+}

@@ -24,10 +24,11 @@ async function upload(file) {
     const points = extractKnowledge(slides);
     if (!points.length) throw new Error("未能从文件中识别到文字内容（图片型课件暂不支持）");
     const d = {name: file.name, slides, points};
-    doc = d;
+    const saved = saveDoc(d, file);
+    doc = d; renderLibrary();
     const defs = d.points.filter(p => p.term).length;
     $("#upload-status").className = "status ok";
-    $("#upload-status").innerHTML = `<b>解析完成</b><span class="stat">${d.slides.length} 页</span><span class="stat">${d.points.length} 条知识点</span><span class="stat">${defs} 个概念定义</span>`;
+    $("#upload-status").innerHTML = `<b>解析完成</b><span class="stat">${d.slides.length} 页</span><span class="stat">${d.points.length} 条知识点</span><span class="stat">${defs} 个概念定义</span>${saved ? `<span class="stat">已存入课件库</span>` : `<span class="stat">课件太大，未能存入课件库</span>`}`;
     renderPoints(); show("#step-points");
   } catch (e) { $("#upload-status").className = "status err"; $("#upload-status").textContent = e.message; }
 }
@@ -52,7 +53,7 @@ $("#again").onclick = generate;
 $("#back").onclick = () => show("#step-points");
 $("#retry-wrong").onclick = () => {
   const wrong = questions.filter((q, i) => !answers[i].ok);
-  if (wrong.length) startQuiz(wrong);
+  if (wrong.length) startQuiz(wrong, true);
 };
 
 async function generate() {
@@ -77,8 +78,9 @@ async function generate() {
   $("#gen").disabled = $("#again").disabled = false;
 }
 
-function startQuiz(qs) {
-  questions = qs; cur = 0; answers = [];
+let isRetry = false, quizDoc = null;
+function startQuiz(qs, retry = false) {
+  questions = qs; cur = 0; answers = []; isRetry = retry; quizDoc = doc;
   show("#step-quiz"); renderQ();
 }
 
@@ -140,6 +142,7 @@ $("#next").onclick = next;
 
 function finish() {
   const n = answers.filter(a => a.ok).length, total = questions.length;
+  recordAttempt(questions, answers, isRetry, quizDoc);
   const pct = Math.round(n / total * 100);
   const msg = pct >= 90 ? "太棒了，掌握得很扎实！" : pct >= 70 ? "不错，再巩固一下错题" : pct >= 50 ? "还有提升空间，加油" : "建议回看课件后再练一遍";
   $("#result-summary").innerHTML = `<div class="ring" style="--p:${pct}"><span>${pct}<small>分</small></span></div><div class="result-text"><b>${msg}</b><span>答对 ${n} / ${total} 题</span></div>`;

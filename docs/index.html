@@ -14,6 +14,8 @@
   <div class="pills"><span>🔒 课件只在本地解析</span><span>⚡ 秒级出题</span><span>🤖 可接入 AI</span></div>
 </div></header>
 <main>
+  <nav class="tabs"><button class="tab active" data-tab="study">📖 刷题</button><button class="tab" data-tab="stats">📈 学习记录</button></nav>
+  <div id="view-study">
   <!-- Step 1 -->
   <section id="step-upload" class="card">
     <h2><span class="step">1</span>上传课件</h2>
@@ -23,6 +25,7 @@
         <div class="drop-title">点击选择或拖拽课件到这里</div><span class="muted">支持 .pptx / .pdf（旧版 .ppt 请先另存为 .pptx）</span></div>
     </label>
     <div id="upload-status" class="muted"></div>
+    <div id="library" class="library"></div>
   </section>
 
   <!-- Step 2 -->
@@ -73,6 +76,24 @@
       <button id="back">返回知识点</button>
     </div>
   </section>
+  </div>
+
+  <div id="view-stats" class="hidden">
+    <section class="card">
+      <div class="stats-head"><h2>📈 学习记录</h2><select id="stats-doc"></select></div>
+      <div id="stats-empty" class="empty"><div class="empty-icon">📝</div><p>还没有学习记录。<br>完成一次测验后，这里会显示你的分数趋势和薄弱知识点。</p><button id="stats-go" class="primary">去刷题</button></div>
+      <div id="stats-body">
+        <div id="stats-tiles" class="tiles"></div>
+        <h3>分数趋势 <span class="muted">（最近 20 次）</span></h3>
+        <div id="stats-chart"></div>
+      </div>
+    </section>
+    <div id="stats-body2">
+    <section class="card"><h2>🎯 薄弱知识点 <span class="muted">正确率最低的知识点，建议重点复习</span></h2><div id="stats-weak"></div></section>
+    <section class="card"><h2>🕘 测验历史</h2><div id="stats-history"></div>
+      <div class="actions"><button id="stats-clear" class="sm ghost">清空学习记录</button></div></section>
+    </div>
+  </div>
 </main>
 <footer>课件刷题 · 课件仅在你的浏览器中处理 · <a href="https://github.com/zhazharan/ppt-quiz" target="_blank">GitHub</a></footer>
 <script src="vendor/jszip.min.js"></script>
@@ -80,5 +101,6 @@
 <script src="extract.js"></script>
 <script src="quizgen.js"></script>
 <script src="app.js"></script>
+<script src="records.js"></script>
 </body>
 </html>
