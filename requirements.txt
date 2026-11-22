@@ -3,3 +3,4 @@ python-pptx
 pypdf
 requests
 jieba
+gunicorn
