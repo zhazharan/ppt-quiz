@@ -17,11 +17,12 @@ $("#file").addEventListener("change", e => e.target.files[0] && upload(e.target.
 
 async function upload(file) {
   $("#upload-status").textContent = `正在解析 ${file.name} ...`;
-  const fd = new FormData(); fd.append("file", file);
   try {
-    const r = await fetch("/api/upload", {method: "POST", body: fd});
+    const raw = await extractSlides(file);
+    const r = await fetch("/api/analyze", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({slides: raw})});
     const d = await r.json();
     if (!r.ok) throw new Error(d.error);
+    d.name = file.name;
     doc = d;
     const defs = d.points.filter(p => p.term).length;
     $("#upload-status").textContent = `✅ 解析完成：${d.slides.length} 页，${d.points.length} 条知识点（其中 ${defs} 个概念定义）`;
@@ -60,7 +61,7 @@ async function generate() {
   $("#gen-status").textContent = llm.api_key ? "AI 正在阅读课件并出题，约需 20-60 秒..." : "正在出题...";
   try {
     const r = await fetch("/api/quiz", {method: "POST", headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({doc_id: doc.doc_id, types, count: +$("#count").value || 10, llm})});
+      body: JSON.stringify({slides: doc.slides, points: doc.points, types, count: +$("#count").value || 10, llm})});
     const d = await r.json();
     if (!r.ok) throw new Error(d.error);
     $("#gen-status").textContent = d.warning ? "⚠️ " + d.warning : (d.mode === "ai" ? "✅ AI 出题完成" : `✅ 已生成 ${d.questions.length} 题`);

@@ -46,7 +46,7 @@ def parse_pptx(data):
         notes = ""
         if slide.has_notes_slide and slide.notes_slide.notes_text_frame is not None:
             notes = _clean(slide.notes_slide.notes_text_frame.text)
-        slides.append(_finish(i, title, lines, notes))
+        slides.append(finish_slide(i, title, lines, notes))
     return slides
 
 
@@ -60,11 +60,14 @@ def parse_pdf(data):
         lines = [_clean(l) for l in raw.splitlines()]
         lines = [l for l in lines if l]
         title = lines.pop(0) if lines else ""
-        slides.append(_finish(i, title, lines, ""))
+        slides.append(finish_slide(i, title, lines, ""))
     return slides
 
 
-def _finish(index, title, lines, notes):
+def finish_slide(index, title, lines, notes):
+    lines = [_clean(l) for l in lines]
+    title = _clean(title)
+    notes = _clean(notes)
     seen, points = set(), []
     for l in lines:
         if l in seen or re.fullmatch(r"[\d\s./-]+", l):
