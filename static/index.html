@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>课件刷题 · PPT 知识点测验</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header><h1>📚 课件刷题</h1><p>上传课堂 PPT，自动提取知识点并出题考你</p></header>
+<main>
+  <!-- Step 1 -->
+  <section id="step-upload" class="card">
+    <h2>1. 上传课件</h2>
+    <label id="drop" class="drop">
+      <input type="file" id="file" accept=".pptx,.pdf" hidden>
+      <div><b>点击或拖拽文件到此处</b><br><span class="muted">支持 .pptx / .pdf（旧版 .ppt 请先另存为 .pptx）</span></div>
+    </label>
+    <div id="upload-status" class="muted"></div>
+  </section>
+
+  <!-- Step 2 -->
+  <section id="step-points" class="card hidden">
+    <h2>2. 识别到的知识点 <span id="doc-name" class="muted"></span></h2>
+    <div id="points" class="points"></div>
+    <h2>3. 出题设置</h2>
+    <div class="settings">
+      <div><span class="label">题型</span>
+        <label><input type="checkbox" name="type" value="choice" checked> 选择题</label>
+        <label><input type="checkbox" name="type" value="judge" checked> 判断题</label>
+        <label><input type="checkbox" name="type" value="fill"> 填空题</label>
+      </div>
+      <div><span class="label">题目数量</span><input type="number" id="count" value="10" min="1" max="50"></div>
+      <details id="ai-box">
+        <summary>AI 智能出题（可选，题目质量更高）</summary>
+        <p class="muted">填写任意 OpenAI 兼容接口（如 DeepSeek、通义千问、Kimi、OpenAI）。Key 仅保存在你的浏览器本地。不填则使用本地规则出题。</p>
+        <div class="grid">
+          <input id="base_url" placeholder="接口地址，如 https://api.deepseek.com/v1">
+          <input id="model" placeholder="模型名，如 deepseek-chat">
+          <input id="api_key" type="password" placeholder="API Key">
+        </div>
+      </details>
+      <button id="gen" class="primary">开始出题</button>
+      <span id="gen-status" class="muted"></span>
+    </div>
+  </section>
+
+  <!-- Step 3 -->
+  <section id="step-quiz" class="card hidden">
+    <div class="quiz-head"><span id="progress"></span><span id="score"></span></div>
+    <div class="bar"><div id="bar-fill"></div></div>
+    <div id="q-box"></div>
+    <div class="actions">
+      <button id="submit" class="primary">提交答案</button>
+      <button id="next" class="primary hidden">下一题</button>
+    </div>
+  </section>
+
+  <!-- Result -->
+  <section id="step-result" class="card hidden">
+    <h2>测验完成</h2>
+    <div id="result-summary" class="result"></div>
+    <div id="wrong-list"></div>
+    <div class="actions">
+      <button id="retry-wrong">重做错题</button>
+      <button id="again" class="primary">再来一组新题</button>
+      <button id="back">返回知识点</button>
+    </div>
+  </section>
+</main>
+<script src="/static/app.js"></script>
+</body>
+</html>
