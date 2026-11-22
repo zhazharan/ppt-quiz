@@ -53,7 +53,7 @@ $("#again").onclick = generate;
 $("#back").onclick = () => show("#step-points");
 $("#retry-wrong").onclick = () => {
   const wrong = questions.filter((q, i) => !answers[i].ok);
-  if (wrong.length) startQuiz(wrong, true);
+  if (wrong.length) startQuiz(wrong, true, quizDoc);
 };
 
 async function generate() {
@@ -71,6 +71,7 @@ async function generate() {
     const mode = qs ? "ai" : "local";
     if (!qs) qs = ruleBased(doc.points, types, +$("#count").value || 10);
     if (!qs.length) throw new Error("课件内容太少，无法生成题目");
+    qs.forEach(q => q.docId = doc.id);
     const d = {questions: qs, mode, warning};
     $("#gen-status").textContent = d.warning ? "⚠️ " + d.warning : (d.mode === "ai" ? "✅ AI 出题完成" : `✅ 已生成 ${d.questions.length} 题`);
     startQuiz(d.questions);
@@ -79,8 +80,8 @@ async function generate() {
 }
 
 let isRetry = false, quizDoc = null;
-function startQuiz(qs, retry = false) {
-  questions = qs; cur = 0; answers = []; isRetry = retry; quizDoc = doc;
+function startQuiz(qs, retry = false, meta = null) {
+  questions = qs; cur = 0; answers = []; isRetry = retry; quizDoc = meta || doc;
   show("#step-quiz"); renderQ();
 }
 
@@ -127,6 +128,7 @@ function submit() {
     });
   }
   answers[cur] = {ok, user};
+  trackAnswer(q, ok);
   const right = q.type === "choice" ? `${"ABCDEF"[q.answer]}. ${q.options[q.answer]}` : q.type === "judge" ? (q.answer ? "正确" : "错误") : q.answer;
   $("#fb").innerHTML = `<div class="feedback ${ok ? "ok" : "no"}"><b>${ok ? "✅ 回答正确" : "❌ 回答错误"}</b>${ok ? "" : `　正确答案：${esc(right)}`}<br>${esc(q.explanation)}</div>`;
   $("#submit").classList.add("hidden"); $("#next").classList.remove("hidden");
@@ -143,6 +145,9 @@ $("#next").onclick = next;
 function finish() {
   const n = answers.filter(a => a.ok).length, total = questions.length;
   recordAttempt(questions, answers, isRetry, quizDoc);
+  const fromPlan = quizDoc.id.startsWith("__");
+  ["#again", "#back"].forEach(b => $(b).classList.toggle("hidden", fromPlan));
+  $("#to-plan").classList.toggle("hidden", !fromPlan);
   const pct = Math.round(n / total * 100);
   const msg = pct >= 90 ? "太棒了，掌握得很扎实！" : pct >= 70 ? "不错，再巩固一下错题" : pct >= 50 ? "还有提升空间，加油" : "建议回看课件后再练一遍";
   $("#result-summary").innerHTML = `<div class="ring" style="--p:${pct}"><span>${pct}<small>分</small></span></div><div class="result-text"><b>${msg}</b><span>答对 ${n} / ${total} 题</span></div>`;

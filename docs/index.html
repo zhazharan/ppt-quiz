@@ -14,7 +14,7 @@
   <div class="pills"><span>🔒 课件只在本地解析</span><span>⚡ 秒级出题</span><span>🤖 可接入 AI</span></div>
 </div></header>
 <main>
-  <nav class="tabs"><button class="tab active" data-tab="study">📖 刷题</button><button class="tab" data-tab="stats">📈 学习记录</button></nav>
+  <nav class="tabs"><button class="tab active" data-tab="study">📖 刷题</button><button class="tab" data-tab="plan">📅 学习计划</button><button class="tab" data-tab="stats">📈 学习记录</button></nav>
   <div id="view-study">
   <!-- Step 1 -->
   <section id="step-upload" class="card">
@@ -74,8 +74,34 @@
       <button id="retry-wrong">重做错题</button>
       <button id="again" class="primary">再来一组新题</button>
       <button id="back">返回知识点</button>
+      <button id="to-plan" class="primary hidden">返回学习计划</button>
     </div>
   </section>
+  </div>
+
+  <div id="view-plan" class="hidden">
+    <section class="card">
+      <div class="today-grid">
+        <div class="today-box"><div class="muted">距离考试</div><div class="big"><span id="cd-days">--</span><small>天</small></div><div class="muted" id="cd-date">还没设置考试日期</div></div>
+        <div class="today-box"><div id="goal-ring" class="ring sm-ring"></div><div class="muted" id="goal-text">今日答题</div></div>
+        <div class="today-box"><div class="big">🔥<span id="streak">0</span><small>天</small></div><div class="muted">连续打卡</div></div>
+      </div>
+    </section>
+    <section class="card"><h2>✅ 今日任务 <span class="muted" id="today-date"></span></h2><div id="tasks"></div></section>
+    <section class="card">
+      <div class="stats-head"><h2>🗓️ 打卡日历</h2><div class="cal-nav"><button class="sm ghost" id="cal-prev">‹</button><b id="cal-title"></b><button class="sm ghost" id="cal-next">›</button></div></div>
+      <div class="cal-week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+      <div id="calendar" class="calendar"></div>
+      <div class="cal-legend"><span><i class="lv0"></i>未学习</span><span><i class="lv1"></i>未达标</span><span><i class="lv2"></i>已达标</span><span><i class="exam"></i>考试日</span></div>
+    </section>
+    <section class="card" id="plan-settings"><h2>⚙️ 计划设置</h2>
+      <div class="plan-form">
+        <div class="pf-row"><span class="label">考试日期</span><input type="date" id="plan-date"></div>
+        <div class="pf-row"><span class="label">每日目标</span><input type="number" id="plan-goal" min="1" max="500" value="20"><span class="muted">题</span></div>
+        <div class="pf-row top"><span class="label">复习课件</span><div id="plan-docs" class="plan-docs"></div></div>
+        <div class="actions"><button id="plan-save" class="primary">保存计划</button><button id="plan-clear" class="sm ghost">删除计划</button><span id="plan-msg" class="muted"></span></div>
+      </div>
+    </section>
   </div>
 
   <div id="view-stats" class="hidden">
@@ -102,5 +128,6 @@
 <script src="quizgen.js"></script>
 <script src="app.js"></script>
 <script src="records.js"></script>
+<script src="plan.js"></script>
 </body>
 </html>

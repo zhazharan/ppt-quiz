@@ -117,9 +117,10 @@ function lineChart(hist) {
 
 function switchTab(tab) {
   document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === tab));
-  $("#view-study").classList.toggle("hidden", tab !== "study");
-  $("#view-stats").classList.toggle("hidden", tab !== "stats");
+  ["study", "plan", "stats"].forEach(v => $("#view-" + v).classList.toggle("hidden", tab !== v));
   if (tab === "stats") renderStats();
+  if (tab === "plan") renderPlan();
+  window.scrollTo({top: 0, behavior: "smooth"});
 }
 
 document.querySelectorAll(".tab").forEach(t => t.onclick = () => switchTab(t.dataset.tab));

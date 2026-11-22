@@ -73,17 +73,20 @@ function choice(question, correct, distractors, kp, explanation) {
   if (distractors.length < 2) return null;
   const options = shuffle([...distractors, correct]);
   return {id: qid(), type: "choice", question, options, answer: options.indexOf(correct),
-    explanation: explanation || `原文：${kp.text}`, slide: kp.slide, topic: kp.topic};
+    explanation: explanation || `原文：${kp.text}`, slide: kp.slide, topic: kp.topic, src: kp.text};
 }
 
 const solid = p => p.term || (p.text.length >= 8 && /[\u4e00-\u9fff]{4}|([A-Za-z]{2,}\W+){4}/.test(p.text));
 
-function ruleBased(allPoints, types, count) {
-  const points = allPoints.filter(solid).length >= 5 ? allPoints.filter(solid) : allPoints;
-  const defs = points.filter(p => p.term), gens = [];
+const solidOnly = a => a.filter(solid).length >= 5 ? a.filter(solid) : a;
+
+function ruleBased(allPoints, types, count, poolAll) {
+  const points = poolAll ? allPoints : solidOnly(allPoints);
+  const pool = poolAll ? solidOnly(poolAll) : points;
+  const defs = pool.filter(p => p.term), gens = [];
   for (const kp of points) {
-    const others = points.filter(p => p.topic !== kp.topic);
-    const same = points.filter(p => p.topic === kp.topic && p !== kp);
+    const others = pool.filter(p => p.topic !== kp.topic);
+    const same = pool.filter(p => p.topic === kp.topic && p !== kp);
     if (types.includes("choice")) {
       if (kp.term) {
         const pool = defs.filter(d => d.term !== kp.term);
@@ -104,7 +107,7 @@ function ruleBased(allPoints, types, count) {
         else if (kp.term && defs.length > 1) stmt = `${kp.term}是${pick(defs.filter(d => d.term !== kp.term)).definition}`;
         else truth = true;
       }
-      return {id: qid(), type: "judge", question: stmt, answer: truth, explanation: `原文：${kp.text}`, slide: kp.slide, topic: kp.topic};
+      return {id: qid(), type: "judge", question: stmt, answer: truth, explanation: `原文：${kp.text}`, slide: kp.slide, topic: kp.topic, src: kp.text};
     });
     if (types.includes("fill")) gens.push(() => {
       let ans = kp.term;
@@ -116,7 +119,7 @@ function ruleBased(allPoints, types, count) {
       }
       if (!kp.text.includes(ans) || kp.text.length - ans.length < 4) return null;
       return {id: qid(), type: "fill", question: kp.text.replace(ans, "＿＿＿＿"), answer: ans,
-        explanation: `原文：${kp.text}`, slide: kp.slide, topic: kp.topic};
+        explanation: `原文：${kp.text}`, slide: kp.slide, topic: kp.topic, src: kp.text};
     });
   }
   const out = [], seen = new Set();
