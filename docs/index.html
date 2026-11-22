@@ -7,32 +7,38 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header><h1>📚 课件刷题</h1><p>上传课堂 PPT，自动提取知识点并出题考你</p></header>
+<header class="hero"><div class="hero-inner">
+  <div class="logo">📚</div>
+  <h1>课件刷题</h1>
+  <p>上传课堂 PPT / PDF，自动提取知识点，生成选择题、判断题、填空题</p>
+  <div class="pills"><span>🔒 课件只在本地解析</span><span>⚡ 秒级出题</span><span>🤖 可接入 AI</span></div>
+</div></header>
 <main>
   <!-- Step 1 -->
   <section id="step-upload" class="card">
-    <h2>1. 上传课件</h2>
+    <h2><span class="step">1</span>上传课件</h2>
     <label id="drop" class="drop">
       <input type="file" id="file" accept=".pptx,.pdf" hidden>
-      <div><b>点击或拖拽文件到此处</b><br><span class="muted">支持 .pptx / .pdf（旧版 .ppt 请先另存为 .pptx）</span></div>
+      <div><svg class="up-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0l-4 4m4-4l4 4"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+        <div class="drop-title">点击选择或拖拽课件到这里</div><span class="muted">支持 .pptx / .pdf（旧版 .ppt 请先另存为 .pptx）</span></div>
     </label>
     <div id="upload-status" class="muted"></div>
   </section>
 
   <!-- Step 2 -->
   <section id="step-points" class="card hidden">
-    <h2>2. 识别到的知识点 <span id="doc-name" class="muted"></span></h2>
+    <h2><span class="step">2</span>识别到的知识点 <span id="doc-name" class="doc-name"></span></h2>
     <div id="points" class="points"></div>
-    <h2>3. 出题设置</h2>
+    <h2><span class="step">3</span>出题设置</h2>
     <div class="settings">
       <div><span class="label">题型</span>
-        <label><input type="checkbox" name="type" value="choice" checked> 选择题</label>
-        <label><input type="checkbox" name="type" value="judge" checked> 判断题</label>
-        <label><input type="checkbox" name="type" value="fill"> 填空题</label>
+        <label class="chip"><input type="checkbox" name="type" value="choice" checked><span>选择题</span></label>
+        <label class="chip"><input type="checkbox" name="type" value="judge" checked><span>判断题</span></label>
+        <label class="chip"><input type="checkbox" name="type" value="fill"><span>填空题</span></label>
       </div>
       <div><span class="label">题目数量</span><input type="number" id="count" value="10" min="1" max="50"></div>
       <details id="ai-box">
-        <summary>AI 智能出题（可选，题目质量更高）</summary>
+        <summary>✨ AI 智能出题 <span class="muted">（可选，题目质量更高）</span></summary>
         <p class="muted">填写任意 OpenAI 兼容接口（如 DeepSeek、通义千问、Kimi、OpenAI）。Key 仅保存在你的浏览器本地。不填则使用本地规则出题。</p>
         <div class="grid">
           <input id="base_url" placeholder="接口地址，如 https://api.deepseek.com/v1">
@@ -40,7 +46,7 @@
           <input id="api_key" type="password" placeholder="API Key">
         </div>
       </details>
-      <button id="gen" class="primary">开始出题</button>
+      <button id="gen" class="primary big">开始出题 →</button>
       <span id="gen-status" class="muted"></span>
     </div>
   </section>
@@ -58,7 +64,7 @@
 
   <!-- Result -->
   <section id="step-result" class="card hidden">
-    <h2>测验完成</h2>
+    <h2>🎯 测验完成</h2>
     <div id="result-summary" class="result"></div>
     <div id="wrong-list"></div>
     <div class="actions">
@@ -68,6 +74,7 @@
     </div>
   </section>
 </main>
+<footer>课件刷题 · 课件仅在你的浏览器中处理 · <a href="https://github.com/zhazharan/ppt-quiz" target="_blank">GitHub</a></footer>
 <script src="vendor/jszip.min.js"></script>
 <script src="vendor/pdf.min.js"></script>
 <script src="extract.js"></script>

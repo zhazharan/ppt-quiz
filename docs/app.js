@@ -16,6 +16,7 @@ drop.addEventListener("drop", ev => { ev.preventDefault(); if (ev.dataTransfer.f
 $("#file").addEventListener("change", e => e.target.files[0] && upload(e.target.files[0]));
 
 async function upload(file) {
+  $("#upload-status").className = "status loading";
   $("#upload-status").textContent = `正在解析 ${file.name} ...`;
   try {
     const raw = await extractSlides(file);
@@ -25,9 +26,10 @@ async function upload(file) {
     const d = {name: file.name, slides, points};
     doc = d;
     const defs = d.points.filter(p => p.term).length;
-    $("#upload-status").textContent = `✅ 解析完成：${d.slides.length} 页，${d.points.length} 条知识点（其中 ${defs} 个概念定义）`;
+    $("#upload-status").className = "status ok";
+    $("#upload-status").innerHTML = `<b>解析完成</b><span class="stat">${d.slides.length} 页</span><span class="stat">${d.points.length} 条知识点</span><span class="stat">${defs} 个概念定义</span>`;
     renderPoints(); show("#step-points");
-  } catch (e) { $("#upload-status").textContent = "❌ " + e.message; }
+  } catch (e) { $("#upload-status").className = "status err"; $("#upload-status").textContent = e.message; }
 }
 
 function renderPoints() {
@@ -35,7 +37,7 @@ function renderPoints() {
   const bySlide = {};
   doc.points.forEach(p => (bySlide[p.slide] ||= []).push(p));
   $("#points").innerHTML = doc.slides.filter(s => bySlide[s.index]).map(s => `
-    <div class="slide"><div class="slide-title">P${s.index} · ${esc(s.title)}</div>
+    <div class="slide"><div class="slide-title"><span class="pno">P${s.index}</span>${esc(s.title)}</div>
     <ul>${bySlide[s.index].map(p => `<li>${p.term ? `<span class="def">${esc(p.term)}</span>：${esc(p.definition)}` : esc(p.text)}</li>`).join("")}</ul></div>`).join("");
 }
 
@@ -91,6 +93,7 @@ function renderQ() {
   else body = `<input class="fill-input" id="fill" placeholder="在此输入答案，回车提交" autocomplete="off">`;
   $("#q-box").innerHTML = `<div><span class="tag">${TYPE[q.type]}</span>${q.topic ? `<span class="tag">${esc(q.topic)}</span>` : ""}${q.slide ? `<span class="muted">课件第 ${q.slide} 页</span>` : ""}</div>
     <div class="question">${esc(q.question)}</div>${body}<div id="fb"></div>`;
+  const box = $("#q-box"); box.classList.remove("anim"); void box.offsetWidth; box.classList.add("anim");
   document.querySelectorAll(".opt").forEach(el => el.onclick = () => {
     if (answers[cur]) return;
     document.querySelectorAll(".opt").forEach(o => o.classList.remove("sel"));
@@ -137,12 +140,14 @@ $("#next").onclick = next;
 
 function finish() {
   const n = answers.filter(a => a.ok).length, total = questions.length;
-  $("#result-summary").innerHTML = `得分 <b>${Math.round(n / total * 100)}</b> 分　答对 ${n} / ${total} 题`;
+  const pct = Math.round(n / total * 100);
+  const msg = pct >= 90 ? "太棒了，掌握得很扎实！" : pct >= 70 ? "不错，再巩固一下错题" : pct >= 50 ? "还有提升空间，加油" : "建议回看课件后再练一遍";
+  $("#result-summary").innerHTML = `<div class="ring" style="--p:${pct}"><span>${pct}<small>分</small></span></div><div class="result-text"><b>${msg}</b><span>答对 ${n} / ${total} 题</span></div>`;
   const wrong = questions.map((q, i) => [q, answers[i]]).filter(([, a]) => !a.ok);
   $("#wrong-list").innerHTML = wrong.length ? "<h3>错题回顾</h3>" + wrong.map(([q, a]) => {
     const fmt = v => q.type === "choice" ? `${"ABCDEF"[v]}. ${q.options[v]}` : q.type === "judge" ? (String(v) === "true" ? "正确" : "错误") : v;
     return `<div class="wrong-item"><span class="tag">${TYPE[q.type]}</span>${esc(q.question)}<br>你的答案：${esc(fmt(a.user))}　正确答案：${esc(fmt(q.answer))}<br><span class="muted">${esc(q.explanation)}</span></div>`;
-  }).join("") : "<p>🎉 全部答对！</p>";
+  }).join("") : "<p class=\"all-right\">🎉 全部答对！</p>";
   $("#retry-wrong").classList.toggle("hidden", !wrong.length);
   show("#step-result");
 }
